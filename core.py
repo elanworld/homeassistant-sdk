@@ -18,13 +18,16 @@ class HomeAssistantSdk:
         self._token = token
         self._api = f"http://{self._url}/api"
         self.authed = False
-        self.id_fun_map = {}
         self.debug = False
+        self.reconnect_duration = None
+        self.id_fun_map = {}
         self.app = websocket.WebSocketApp(f'ws://{url}/api/websocket', on_message=self.on_message,
                                           on_error=self.on_error,
                                           on_close=self.on_close, on_open=self.on_open)
         threading.Thread(target=self.app.run_forever).start()
-        while not self.authed:
+        for _ in range(100):
+            if self.authed:
+                break
             time.sleep(0.1)
 
     def on_message(self, ws, message):
@@ -39,16 +42,26 @@ class HomeAssistantSdk:
                 self.id_fun_map[f"{loads.get('id')}{self.str_last_info}"] = json.loads(message)
             if not self.authed and loads.get("type") == "auth_ok":
                 self.authed = True
+                print(f"{self} authed")
 
     def on_error(self, ws, error):
-        print(error)
+        self.authed = False
+        print(f"error: {error}")
+        self.reconnect()
 
     def on_close(self, ws, *args):
-        print("### closed ###")
+        self.authed = False
+        print(f"closed: {args}")
+        self.reconnect()
 
     def on_open(self, ws: WebSocketApp):
         ws.send(
             '{"type": "auth", "access_token": "%s"}' % self._token)
+
+    def reconnect(self):
+        if self.reconnect_duration:
+            time.sleep(self.reconnect_duration)
+            self.__init__(self._url, self._token)
 
     def subscribe_events(self, fun):
         data = {"type": "subscribe_events", "event_type": "state_changed"}
