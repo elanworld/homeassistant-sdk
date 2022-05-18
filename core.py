@@ -5,7 +5,7 @@ from typing import Optional, List, Dict, Union
 
 import requests
 import websocket
-from . import event
+from . import entity
 from websocket import WebSocketApp
 
 
@@ -38,16 +38,14 @@ class HomeAssistantSdk:
             if loads.get("id") in self.id_fun_map:
                 id_fun = self.id_fun_map[loads.get("id")]
                 if id_fun:
-                    id_fun(json.loads(message, object_hook=event.Event))
+                    id_fun(json.loads(message, object_hook=entity.Entity))
                 self.id_fun_map[f"{loads.get('id')}{self.str_last_info}"] = json.loads(message)
             if not self.authed and loads.get("type") == "auth_ok":
                 self.authed = True
                 print(f"{self} authed")
 
     def on_error(self, ws, error):
-        self.authed = False
         print(f"error: {error}")
-        self.reconnect()
 
     def on_close(self, ws, *args):
         self.authed = False
@@ -89,7 +87,7 @@ class HomeAssistantSdk:
                 if entity_id:
                     for entity in entities:
                         if entity.get("entity_id") == entity_id:
-                            return json.loads(json.dumps(entity), object_hook=event.Event)
+                            return json.loads(json.dumps(entity), object_hook=entity.Entity)
                     return None
                 else:
                     return entities
