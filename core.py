@@ -18,7 +18,7 @@ class HomeAssistantSdk:
         self._token = token
         self._api = f"http://{self._url}/api"
         self.authed = False
-        self.debug = False
+        self.is_debug = False
         self.reconnect_duration = None
         self.id_fun_map = {}
         self.app = websocket.WebSocketApp(f'ws://{url}/api/websocket', on_message=self.on_message,
@@ -31,7 +31,7 @@ class HomeAssistantSdk:
             time.sleep(0.1)
 
     def on_message(self, ws, message):
-        if self.debug:
+        if self.is_debug:
             print(message)
         if not self.authed or self.id_fun_map:
             loads = json.loads(message)  # type: dict
