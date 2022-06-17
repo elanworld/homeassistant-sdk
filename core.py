@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Union
 
 import requests
 import websocket
+
 from .entity import Entity
 from websocket import WebSocketApp
 
@@ -29,6 +30,23 @@ class HomeAssistantSdk:
             if self.authed:
                 break
             time.sleep(0.1)
+        threading.Thread(target=self.ping).start()
+
+    def ping(self):
+        while True:
+            if self.authed:
+                self.send({"type": "ping"})
+            else:
+                break
+            time.sleep(1 if self.is_debug else 60)
+
+    def close(self):
+        self.app.close()
+
+    def connected(self):
+        if self.app and self.app.sock and self.app.sock.connected and self.authed:
+            return True
+        return False
 
     def on_message(self, ws, message):
         if self.is_debug:
@@ -50,16 +68,10 @@ class HomeAssistantSdk:
     def on_close(self, ws, *args):
         self.authed = False
         print(f"closed: {args}")
-        self.reconnect()
 
     def on_open(self, ws: WebSocketApp):
         ws.send(
             '{"type": "auth", "access_token": "%s"}' % self._token)
-
-    def reconnect(self):
-        if self.reconnect_duration:
-            time.sleep(self.reconnect_duration)
-            self.__init__(self._url, self._token)
 
     def subscribe_events(self, fun):
         data = {"type": "subscribe_events", "event_type": "state_changed"}
