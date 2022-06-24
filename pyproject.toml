@@ -1,0 +1,20 @@
+[build-system]
+requires = ["websocket","requests"]
+[project]
+name = "homeassistant-sdk"
+version = "0.0.4"
+authors = [
+  { name="alanwoods", email="elanworld@163.com" },
+]
+description = "homeassistant websocket sdk api client"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/elanworld/homeassistant-sdk"
+"Bug Tracker" = "https://github.com/elanworld/homeassistant-sdk/issues"

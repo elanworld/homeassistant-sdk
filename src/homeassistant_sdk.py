@@ -6,11 +6,11 @@ from typing import Optional, List, Dict, Union
 import requests
 import websocket
 
-from .entity import Entity
+from entity import Entity
 from websocket import WebSocketApp
 
 
-class HomeAssistantSdk:
+class HomeassistantSdk:
     str_last_info = "_last_info"
 
     def __init__(self, url, token):
