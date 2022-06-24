@@ -1,6 +1,11 @@
 a python lib to connect homeassistant using websocket
 
-usage:
+#usage:
+
+### install
+```shell
+pip install homeassistant-sdk
+```
 
 ```python
 from homeassistant_sdk import HomeassistantSdk
